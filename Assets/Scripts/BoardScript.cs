@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 public class BoardScript : MonoBehaviour {
 
-    List<GameObject> list = new List<GameObject>();
-
     string[,] array = new string[,]
     {
         {"A1", "A2", "A3", "A4", "A5"},
@@ -15,28 +13,26 @@ public class BoardScript : MonoBehaviour {
         {"E1", "E2", "E3", "E4", "E5"},
     };
 
-
-    void OnTriggerEnter(Collider other)
+    void Update()
     {
-        Debug.Log("Placed a boat" + other.name);
-        list.Add(other.GetComponent<GameObject>());
-
-
-
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        Debug.Log("Boat gone");
-        foreach (GameObject go in list)
+        if (Input.GetKeyDown("space"))
         {
-            if (other.GetComponent<GameObject>() == go)
-            {
-                list.Remove(go);
-            }
+            Debug.Log("PRESSED");
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            Rigidbody gameObjectsRigidBody = cube.AddComponent<Rigidbody>();
+            //var superMe = gameObject.AddComponent(boxscript); add this script to box! add boxcollider and debug
+            cube.transform.position = new Vector3(0, 3, -2); ;
+            StartCoroutine(Example());
         }
-        
+
 
     }
 
+    IEnumerator Example()
+    {
+        print(Time.time);
+        yield return new WaitForSeconds(5);
+        print(Time.time);
+    }
 }
+
