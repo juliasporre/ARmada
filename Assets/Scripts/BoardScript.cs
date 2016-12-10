@@ -13,26 +13,50 @@ public class BoardScript : MonoBehaviour {
         {"E1", "E2", "E3", "E4", "E5"},
     };
 
-    void Update()
+    public string url = "http://130.229.163.161:8000/game";
+    private IEnumerator printMessage;
+    int t = -1;
+
+    void Start()
+    {
+        InvokeRepeating("callHelper",0.5f,0.5f);
+    }
+
+    void callHelper()
+    {
+        printMessage = getMessage();
+        StartCoroutine(printMessage);
+    }
+
+    IEnumerator getMessage()
+    {
+        WWW www = new WWW(url + "?t=" + t);
+        Debug.Log("HERE");
+        yield return www;
+
+        if (www.text.Length > 0)
+        {
+            t++;
+            Debug.Log(www.text);
+        }
+
+    }
+
+    /*void Update()
     {
         if (Input.GetKeyDown("space"))
         {
+            printMessage = getMessage();
+            StartCoroutine(printMessage);
             Debug.Log("PRESSED");
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             Rigidbody gameObjectsRigidBody = cube.AddComponent<Rigidbody>();
             //var superMe = gameObject.AddComponent(boxscript); add this script to box! add boxcollider and debug
             cube.transform.position = new Vector3(0, 3, -2); ;
-            StartCoroutine(Example());
         }
 
 
-    }
+    }*/
 
-    IEnumerator Example()
-    {
-        print(Time.time);
-        yield return new WaitForSeconds(5);
-        print(Time.time);
-    }
 }
 

@@ -360,6 +360,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6647d8aa8aff3524ab2af2a38c2c1cae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  url: http://130.229.163.161:8000/game
 --- !u!4 &620590940 stripped
 Transform:
   m_PrefabParentObject: {fileID: 400000, guid: bead8531bf2b5dd41beb6393d69b6c45, type: 3}
@@ -1389,22 +1390,6 @@ Prefab:
 Transform:
   m_PrefabParentObject: {fileID: 400000, guid: bead8531bf2b5dd41beb6393d69b6c45, type: 3}
   m_PrefabInternal: {fileID: 2034942574}
---- !u!1 &1638067581 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1000011970465574, guid: 6d277e312e48098498263f11e4268c9f,
-    type: 2}
-  m_PrefabInternal: {fileID: 682913811}
---- !u!114 &1638067583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1638067581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6647d8aa8aff3524ab2af2a38c2c1cae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1670948866
 Prefab:
   m_ObjectHideFlags: 0
@@ -1657,6 +1642,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6647d8aa8aff3524ab2af2a38c2c1cae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  url: http://130.229.163.161:8000/game
 --- !u!1001 &1970471574
 Prefab:
   m_ObjectHideFlags: 0
