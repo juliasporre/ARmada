@@ -1251,7 +1251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6647d8aa8aff3524ab2af2a38c2c1cae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  url: http://130.229.163.161:8000/game
+  url: http://localhost:8000/game
 --- !u!1 &515678926
 GameObject:
   m_ObjectHideFlags: 0
@@ -3511,7 +3511,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1000010604965396, guid: 6d277e312e48098498263f11e4268c9f, type: 2}
       propertyPath: m_Name
-      value: BoardBoxcolliders (1)
+      value: BoardBoxcolliders (Opponent)
       objectReference: {fileID: 0}
     - target: {fileID: 65000012151454994, guid: 6d277e312e48098498263f11e4268c9f,
         type: 2}
@@ -4074,23 +4074,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ecca2f2d5a495614d9091570f54f873c, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &1785043657 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1000011970465574, guid: 6d277e312e48098498263f11e4268c9f,
-    type: 2}
-  m_PrefabInternal: {fileID: 1532578745}
---- !u!114 &1785043659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1785043657}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6647d8aa8aff3524ab2af2a38c2c1cae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  url: http://130.229.163.161:8000/game
 --- !u!1 &1817591514
 GameObject:
   m_ObjectHideFlags: 0

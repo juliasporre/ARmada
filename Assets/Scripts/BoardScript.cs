@@ -14,7 +14,7 @@ public class BoardScript : MonoBehaviour {
 
     void Start()
     {
-        StartCoroutine(SendPosBoat(30));
+        StartCoroutine(SendPosBoat(20));
         //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
         InvokeRepeating("callHelper", 0.5f, 5f);
     }
@@ -143,9 +143,8 @@ public class BoardScript : MonoBehaviour {
         WWWForm form = new WWWForm();
         form.AddField("Positions", listToSend);
 
-        string urlBoats = "?init=" + listToSend;
-        Debug.Log("Sending" + listToSend);
-        //WWW www = new WWW("http://localhost:8000/game?init=A1B1C1xD4D5"); 
+        string urlBoats = url + "?init=" + listToSend;
+        Debug.Log("Sending " + urlBoats);
         WWW www = new WWW(urlBoats);
         StartCoroutine(WaitForRequest(www));
     }
@@ -153,7 +152,7 @@ public class BoardScript : MonoBehaviour {
     IEnumerator WaitForRequest(WWW www)
     {
         yield return www;
-
+   
         // check for errors
         if (www.error == null)
         {
