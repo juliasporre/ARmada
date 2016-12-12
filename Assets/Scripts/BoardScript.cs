@@ -171,21 +171,26 @@ public class BoardScript : MonoBehaviour {
         if (Input.GetKeyDown("space"))
        {
             Debug.Log("TEST BOMBING");
-            Vector3 place = GameObject.Find("E5").transform.position;
+            Vector3 place = GameObject.Find("A1").transform.position;
+			Vector3 rot = place; 
             Debug.Log(place);
-            place.x = 0;
-            place.y = 0;
-            place.z = 0;
+			//place.x += 0;
+			//place.y += 0;
+			//place.z += 0;
 
-            Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation);
-            //rocketClone.velocity = transform.forward * speed;
+			Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation*Quaternion.Euler(90,0,0));
+			rocketClone.transform.parent = transform; //fäster raketen på board
+
+			rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
+
+			rocketClone.velocity = -transform.up * 10f * speed ; //hastighet nedåt
+
 
             // You can also acccess other components / scripts of the clone
             //rocketClone.GetComponent<MyRocketScript>().DoSomething();
             }
 
             // Calls the fire method when holding down ctrl or mouse
-
 
 
             //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
@@ -229,6 +234,7 @@ public class BoardScript : MonoBehaviour {
 
     IEnumerator SendPosBoat(float time)
     {
+		//Bygger på tokens för båtar. 
         yield return new WaitForSeconds(time);
         string listToSend = "";
 
@@ -243,7 +249,7 @@ public class BoardScript : MonoBehaviour {
         }
         //WWWForm form = new WWWForm();
         //form.AddField("Positions", listToSend);
-		listToSend = "A1B1xD2D3D4";
+		listToSend = "A1B1xD2D3D4"; //position of ship
 
 		string urlBoats = url + "?init=" + listToSend;
         Debug.Log("Sending " + urlBoats);
