@@ -27,7 +27,7 @@ public class BoardScript : MonoBehaviour {
 
     void Start()
     {
-        StartCoroutine(SendPosBoat(20)); //when starting the game, wait 20 sec to position the boats on the board
+        StartCoroutine(SendPosBoat(1)); //when starting the game, wait 20 sec to position the boats on the board
         //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
         InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
     }
@@ -47,7 +47,7 @@ public class BoardScript : MonoBehaviour {
 		WWW www = new WWW(url + "?t=" + t);
         //Debug.Log("Getting message from server: ");
         yield return www;
-		Debug.Log(www.text);
+		//Debug.Log(www.text);
 	
         if (www.text.Length > 0)
         {
@@ -66,7 +66,15 @@ public class BoardScript : MonoBehaviour {
 
     void makeMove(string[] commands)
     {
-        if(commands[1] == player && commands[3] == "x") //x= hit
+		if (commands[1] == player && commands[2] == "WIN") //X=sunk
+		{
+			win();
+		}
+		else if (commands[1] != player && commands[2] == "WIN") //X=sunk
+		{
+			loss();
+		}
+        else if(commands[1] == player && commands[3] == "x") //x= hit
         {
             bombOpponentHit(commands[2]);
         }
@@ -91,11 +99,12 @@ public class BoardScript : MonoBehaviour {
 		{
 			bombMeSunk(commands[2]);
 		}
+	
     }
 
     void bombOpponentHit(string bombPos)
     {
-        Debug.Log("One of opponents boats was hit!");
+        Debug.Log("Your attack hit!");
         Vector3 place = GameObject.Find("o" + bombPos).transform.position;
         place.y = 10;
         Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
@@ -103,7 +112,7 @@ public class BoardScript : MonoBehaviour {
 
     void bombOpponentMiss(string bombPos)
     {
-        Debug.Log("Your attack missed!");
+        Debug.Log("Your attack missed.");
         Vector3 place = GameObject.Find("o" + bombPos).transform.position;
         place.y = 10;
         Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
@@ -111,7 +120,7 @@ public class BoardScript : MonoBehaviour {
 }
 	void bombOpponentSunk(string bombPos)    
 	{
-		Debug.Log("You sank the opponents boat");
+		Debug.Log("You sank the opponents boat!");
 		Vector3 place = GameObject.Find("o" + bombPos).transform.position;
 		place.y = 10;
 		Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
@@ -128,7 +137,7 @@ public class BoardScript : MonoBehaviour {
 
     void bombMeMiss(string bombPos)
     {
-        Debug.Log("Your boats was not hit!");
+        Debug.Log("Your boats was not hit.");
         Vector3 place = GameObject.Find(bombPos).transform.position;
         place.y = 10;
         Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
@@ -141,6 +150,20 @@ public class BoardScript : MonoBehaviour {
 		place.y = 10;
 		Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
 	}
+
+	void win()
+	{
+		//Julia, lägg in några coola animeringseffekter. 
+		Debug.Log("YOU WIIIN YEEEH.");
+
+	}
+
+	void loss()
+	{
+		//Julia, lägg in några coola animeringseffekter. :) 
+		Debug.Log("You loss, goddamit. Loser. :/");
+	}
+
 
     void Update()
     {
