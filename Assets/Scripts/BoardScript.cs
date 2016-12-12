@@ -13,49 +13,51 @@ public class BoardScript : MonoBehaviour {
 
     Dictionary<string, List<string>> boatsPos = new Dictionary<string, List<string>>();
     Dictionary<string, Vector3> BoxesPos = new Dictionary<string, Vector3>();
-    string player;
+    string player; //This player
 
     public GameObject originalbomb;
     public Rigidbody rocket;
     public float speed = 10f;
 
-    //public string url = "http://130.229.163.161:8000/game"; //use this if other computer is server 
-    public string url = "http://localhost:8000/game";
+    public string url = "http://130.229.174.226:8000/game"; //use this if other computer is server 
+    //public string url = "http://localhost:8000/game";
+	// hårdkodat atm, får kolla på detta senare
     private IEnumerator printMessage;
-    int t = -1;
+    int t = 0; //Begin the game, waiting for command 0
 
     void Start()
     {
-        StartCoroutine(SendPosBoat(20));
+        StartCoroutine(SendPosBoat(20)); //when starting the game, wait 20 sec to position the boats on the board
         //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
-        InvokeRepeating("callHelper", 0.5f, 5f);
+        InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
     }
 
     void callHelper()
-    {
-        printMessage = getMessage();
-        StartCoroutine(printMessage);
+    { //only surves to starts getMessage
+		if (player != null) //Dont ask for moves util player has been assigned in SendPosBoat
+		{
+       	 	printMessage = getMessage();
+        	StartCoroutine(printMessage);
+		}
     }
 
     IEnumerator getMessage()
     {
-        WWW www = new WWW(url + "?t=" + t);
-        Debug.Log("Getting message from server: ");
+		//Debug.Log("http://130.229.174.226:8000/game" + "?t=" + t);
+		WWW www = new WWW(url + "?t=" + t);
+        //Debug.Log("Getting message from server: ");
         yield return www;
-        //Debug.Log(www.text);
+		Debug.Log(www.text);
+	
         if (www.text.Length > 0)
         {
             t++;
 
             string recivedCommands = www.text;
             Debug.Log(recivedCommands);
-            string[] commands = recivedCommands.Split('x');
-            if(commands[0][0] == 'P')
-            {
-                Debug.Log("You are now " + commands[0]);
-                player = commands[0];
-            }
-            else if(commands.Length > 1)
+            string[] commands = recivedCommands.Split(' '); //recieved commands are seperated by " "
+           
+            if(commands.Length > 1)
             {
                 makeMove(commands);
             }
@@ -64,27 +66,36 @@ public class BoardScript : MonoBehaviour {
 
     void makeMove(string[] commands)
     {
-        if(commands[1] == player && commands[3] == "x")
+        if(commands[1] == player && commands[3] == "x") //x= hit
         {
             bombOpponentHit(commands[2]);
         }
-        else if (commands[1] == player && commands[3] == "o")
+        else if (commands[1] == player && commands[3] == "o") //o = miss
         {
             bombOpponentMiss(commands[2]);
         }
-        else if (commands[1] != player && commands[3] == "x")
+		else if (commands[1] == player && commands[3] == "X") //X=sunk
+		{
+			bombOpponentSunk(commands[2]);
+		}
+		//if turn is opponent
+        else if (commands[1] != player && commands[3] == "x") //x= hit
         {
             bombMeHit(commands[2]);
         }
-        else if (commands[1] == player && commands[3] == "o")
+        else if (commands[1] != player && commands[3] == "o") //o=miss
         {
             bombMeMiss(commands[2]);
         }
+		else if (commands[1] != player && commands[3] == "X") //X=sunk
+		{
+			bombMeSunk(commands[2]);
+		}
     }
 
     void bombOpponentHit(string bombPos)
     {
-        Debug.Log("Opponent hit!");
+        Debug.Log("One of opponents boats was hit!");
         Vector3 place = GameObject.Find("o" + bombPos).transform.position;
         place.y = 10;
         Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
@@ -92,16 +103,24 @@ public class BoardScript : MonoBehaviour {
 
     void bombOpponentMiss(string bombPos)
     {
-        Debug.Log("Opponent miss!");
+        Debug.Log("Your attack missed!");
         Vector3 place = GameObject.Find("o" + bombPos).transform.position;
         place.y = 10;
         Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
 
 }
+	void bombOpponentSunk(string bombPos)    
+	{
+		Debug.Log("You sank the opponents boat");
+		Vector3 place = GameObject.Find("o" + bombPos).transform.position;
+		place.y = 10;
+		Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+
+	}
 
     void bombMeHit(string bombPos)
     {
-        Debug.Log("Me hit!");
+        Debug.Log("Your boat was hit!");
         Vector3 place = GameObject.Find(bombPos).transform.position;
         place.y = 10;
         Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
@@ -109,12 +128,19 @@ public class BoardScript : MonoBehaviour {
 
     void bombMeMiss(string bombPos)
     {
-        Debug.Log("Me miss!");
+        Debug.Log("Your boats was not hit!");
         Vector3 place = GameObject.Find(bombPos).transform.position;
         place.y = 10;
         Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
     }
 
+	void bombMeSunk(string bombPos)
+	{
+		Debug.Log("Your boat was sunk.");
+		Vector3 place = GameObject.Find(bombPos).transform.position;
+		place.y = 10;
+		Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+	}
 
     void Update()
     {
@@ -192,14 +218,18 @@ public class BoardScript : MonoBehaviour {
             }
             listToSend = listToSend + "x";
         }
-        WWWForm form = new WWWForm();
-        form.AddField("Positions", listToSend);
+        //WWWForm form = new WWWForm();
+        //form.AddField("Positions", listToSend);
+		listToSend = "A1B1xD2D3D4";
 
-        string urlBoats = url + "?init=" + listToSend;
+		string urlBoats = url + "?init=" + listToSend;
         Debug.Log("Sending " + urlBoats);
         WWW www = new WWW(urlBoats);
-        StartCoroutine(WaitForRequest(www));
+        //StartCoroutine(WaitForRequest(www));
+		yield return www;
 
+		Debug.Log("You are now " + www.text);
+		player = www.text;
         var allColliders = GetComponentsInChildren<Collider>();
         foreach (var childCollider in allColliders)
         {
