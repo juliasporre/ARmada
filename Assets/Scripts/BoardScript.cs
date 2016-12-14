@@ -69,31 +69,52 @@ public class BoardScript : MonoBehaviour {
 		if (commands[1] == player && commands[2] == "WIN") //X=sunk
 		{
 			win();
+			//Display a text that says "You are the champion"
 		}
 		else if (commands[1] != player && commands[2] == "WIN") //X=sunk
 		{
 			loss();
+			//Display a text that says "You have lost"
 		}
+
+		//If the game has not yet reached end state:
         else if(commands[1] == player && commands[3] == "x") //x= hit
         {
             bombOpponentHit(commands[2]);
+			//display an mark of hit at position commands[3] side of opponent
+			//Vector3 place = GameObject.Find("o" + commands[3]).transform.position;
+			//Object success = Instantiate(SuccessMark, place, transform.rotation);
+
         }
         else if (commands[1] == player && commands[3] == "o") //o = miss
         {
             bombOpponentMiss(commands[2]);
+			//display an mark of miss at position commands[3]
+			//Vector3 place = GameObject.Find("o" + commands[3]).transform.position;
+			//Object fail = Instantiate(MissMark, place, transform.rotation);
         }
 		else if (commands[1] == player && commands[3] == "X") //X=sunk
 		{
 			bombOpponentSunk(commands[2]);
+			//display the boat that was sunk
+			//Vector3 place = GameObject.Find("o" + commands[3]).transform.position;
+			//instantiate a sunk boat at its original position. Or instanstiate at the beginning and make it visible here?
+			//Object bomb = Instantiate(TheBoatThatWasSunk(boatsPos[commands[3]], place, originalbomb.transform.rotation);
 		}
+
 		//if turn is opponent
         else if (commands[1] != player && commands[3] == "x") //x= hit
         {
             bombMeHit(commands[2]);
+
+			//Vector3 place = GameObject.Find(commands[3]).transform.position;
         }
         else if (commands[1] != player && commands[3] == "o") //o=miss
         {
             bombMeMiss(commands[2]);
+			//Vector3 place = GameObject.Find(commands[3]).transform.position;
+
+
         }
 		else if (commands[1] != player && commands[3] == "X") //X=sunk
 		{
@@ -107,7 +128,8 @@ public class BoardScript : MonoBehaviour {
         Debug.Log("Your attack hit!");
         Vector3 place = GameObject.Find("o" + bombPos).transform.position;
         place.y = 10;
-        Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+        //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+		fireMissle(bombPos);
     }
 
     void bombOpponentMiss(string bombPos)
@@ -115,24 +137,26 @@ public class BoardScript : MonoBehaviour {
         Debug.Log("Your attack missed.");
         Vector3 place = GameObject.Find("o" + bombPos).transform.position;
         place.y = 10;
-        Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
-
-}
-	void bombOpponentSunk(string bombPos)    
-	{
-		Debug.Log("You sank the opponents boat!");
-		Vector3 place = GameObject.Find("o" + bombPos).transform.position;
-		place.y = 10;
-		Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+        //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+		fireMissle(bombPos);
 
 	}
+	void bombOpponentSunk(string bombPos)
+	{
+		Debug.Log ("You sank the opponents boat!");
+		Vector3 place = GameObject.Find ("o" + bombPos).transform.position;
+		place.y = 10;
+		//Object bomb = Instantiate (originalbomb, place, originalbomb.transform.rotation);
+		fireMissle(bombPos);
 
+	}
     void bombMeHit(string bombPos)
     {
         Debug.Log("Your boat was hit!");
         Vector3 place = GameObject.Find(bombPos).transform.position;
         place.y = 10;
-        Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+        //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+		fireMissle(bombPos);
     }
 
     void bombMeMiss(string bombPos)
@@ -140,7 +164,8 @@ public class BoardScript : MonoBehaviour {
         Debug.Log("Your boats was not hit.");
         Vector3 place = GameObject.Find(bombPos).transform.position;
         place.y = 10;
-        Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+        //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+		fireMissle(bombPos);
     }
 
 	void bombMeSunk(string bombPos)
@@ -148,23 +173,34 @@ public class BoardScript : MonoBehaviour {
 		Debug.Log("Your boat was sunk.");
 		Vector3 place = GameObject.Find(bombPos).transform.position;
 		place.y = 10;
-		Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+		//Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
+		fireMissle(bombPos);
 	}
 
 	void win()
 	{
-		//Julia, lägg in några coola animeringseffekter. 
+		//Julia, lägg in några coola animeringseffekter. Fyrverkerier eller nått xD
 		Debug.Log("YOU WIIIN YEEEH.");
 
 	}
 
 	void loss()
 	{
-		//Julia, lägg in några coola animeringseffekter. :) 
-		Debug.Log("You loss, goddamit. Loser. :/");
+		//Julia, lägg in några coola animeringseffekter. :)  typ regn, #sadface
+		Debug.Log("You lose, goddamit. Loser. :/");
 	}
 
+	void fireMissle(string place)
+	//creates a missle above the box "A1,A2..." that was sent by command
+	{
+		Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation*Quaternion.Euler(90,0,0));
 
+		rocketClone.transform.parent = transform; //fäster raketen på board
+
+		rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
+
+		rocketClone.velocity = -transform.up * 10f * speed ; //hastighet nedåt
+	}
     void Update()
     {
 
@@ -184,7 +220,6 @@ public class BoardScript : MonoBehaviour {
 			rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
 
 			rocketClone.velocity = -transform.up * 10f * speed ; //hastighet nedåt
-
 
             // You can also acccess other components / scripts of the clone
             //rocketClone.GetComponent<MyRocketScript>().DoSomething();
