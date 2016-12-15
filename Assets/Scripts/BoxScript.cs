@@ -11,8 +11,14 @@ public class BoxScript : MonoBehaviour {
        parent.OnChildsTriggerEnter(name, other);
     }
 
-	// Use this for initialization
-	void Start () {
+    void OnTriggerExit(Collider other)
+    {
+        Debug.Log("Sending to Parent from " + name);
+        parent.OnChildsTriggerExit(name, other);
+    }
+
+    // Use this for initialization
+    void Start () {
 	    
 	}
 	

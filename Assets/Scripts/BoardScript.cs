@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 
 /*TODO
@@ -16,6 +17,8 @@ public class BoardScript : MonoBehaviour {
     string player; //This player
 
     public GameObject originalbomb;
+    public GameObject userDisplay;
+    public GameObject fireworks;
     public Rigidbody rocket;
     public float speed = 10f;
 
@@ -27,7 +30,7 @@ public class BoardScript : MonoBehaviour {
 
     void Start()
     {
-        StartCoroutine(SendPosBoat(1)); //when starting the game, wait 20 sec to position the boats on the board
+        StartCoroutine(SendPosBoat(30)); //when starting the game, wait 20 sec to position the boats on the board
         //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
         InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
     }
@@ -126,61 +129,74 @@ public class BoardScript : MonoBehaviour {
     void bombOpponentHit(string bombPos)
     {
         Debug.Log("Your attack hit!");
-        Vector3 place = GameObject.Find("o" + bombPos).transform.position;
-        place.y = 10;
-        //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
-		fireMissle(bombPos);
+		fireMissle("o" + bombPos);
+
     }
 
     void bombOpponentMiss(string bombPos)
     {
         Debug.Log("Your attack missed.");
-        Vector3 place = GameObject.Find("o" + bombPos).transform.position;
-        place.y = 10;
-        //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
-		fireMissle(bombPos);
+		fireMissle("o"+bombPos);
 
 	}
 	void bombOpponentSunk(string bombPos)
 	{
 		Debug.Log ("You sank the opponents boat!");
-		Vector3 place = GameObject.Find ("o" + bombPos).transform.position;
-		place.y = 10;
-		//Object bomb = Instantiate (originalbomb, place, originalbomb.transform.rotation);
-		fireMissle(bombPos);
+		fireMissle("o"+bombPos);
 
 	}
     void bombMeHit(string bombPos)
     {
         Debug.Log("Your boat was hit!");
-        Vector3 place = GameObject.Find(bombPos).transform.position;
-        place.y = 10;
-        //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
 		fireMissle(bombPos);
     }
 
     void bombMeMiss(string bombPos)
     {
         Debug.Log("Your boats was not hit.");
-        Vector3 place = GameObject.Find(bombPos).transform.position;
-        place.y = 10;
-        //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
 		fireMissle(bombPos);
     }
 
 	void bombMeSunk(string bombPos)
 	{
 		Debug.Log("Your boat was sunk.");
-		Vector3 place = GameObject.Find(bombPos).transform.position;
-		place.y = 10;
-		//Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
 		fireMissle(bombPos);
+        sinkingBoat(bombPos);
 	}
+
+
+    void sinkingBoat(string boatPos)
+    {
+        Debug.Log("NU SJUNKER DEN");
+        foreach (string boat in boatsPos.Keys)
+        {
+            Debug.Log(boat);
+            List<string> posList = boatsPos[boat];
+            foreach (string position in posList)
+            {
+                if(position == boatPos)
+                {
+                    Debug.Log("FOUND THE BOAT");
+                    var sunkBoat = GameObject.Find(boat);
+                    Debug.Log(sunkBoat);
+                    for(int i = 0; i < 50; i++)
+                    {
+                        sunkBoat.transform.Rotate(Vector3.forward, 2);
+                        sunkBoat.transform.position += Vector3.down;
+                    }
+
+                }
+            }
+        }
+    }
+
 
 	void win()
 	{
-		//Julia, lägg in några coola animeringseffekter. Fyrverkerier eller nått xD
-		Debug.Log("YOU WIIIN YEEEH.");
+        //Julia, lägg in några coola animeringseffekter. Fyrverkerier eller nått xD
+        userDisplay.GetComponent<Text>().text = "WINNER :D";
+        fireworks.GetComponent<Renderer>().enabled = true;
+        Debug.Log("YOU WIIIN YEEEH.");
 
 	}
 
@@ -188,49 +204,38 @@ public class BoardScript : MonoBehaviour {
 	{
 		//Julia, lägg in några coola animeringseffekter. :)  typ regn, #sadface
 		Debug.Log("You lose, goddamit. Loser. :/");
-	}
+        userDisplay.GetComponent<Text>().text = "YOU ARE THE LOOOOOOZER";
+    }
 
-	void fireMissle(string place)
+	void fireMissle(string boxName)
 	//creates a missle above the box "A1,A2..." that was sent by command
 	{
-		Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation*Quaternion.Euler(90,0,0));
+        /*Vector3 place = GameObject.Find(boxName).transform.position;
+        Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation * Quaternion.Euler(90, 0, 0));
+        rocketClone.transform.parent = transform; //fäster raketen på board
 
-		rocketClone.transform.parent = transform; //fäster raketen på board
+        rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
 
-		rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
-
-		rocketClone.velocity = -transform.up * 10f * speed ; //hastighet nedåt
-	}
+        rocketClone.velocity = -transform.up * 5f * speed; //hastighet nedåt*/
+    }
     void Update()
     {
 
         if (Input.GetKeyDown("space"))
        {
+            //Test code, works with space
             Debug.Log("TEST BOMBING");
             Vector3 place = GameObject.Find("A1").transform.position;
-			Vector3 rot = place; 
-            Debug.Log(place);
-			//place.x += 0;
-			//place.y += 0;
-			//place.z += 0;
-
 			Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation*Quaternion.Euler(90,0,0));
 			rocketClone.transform.parent = transform; //fäster raketen på board
 
 			rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
 
-			rocketClone.velocity = -transform.up * 10f * speed ; //hastighet nedåt
+			rocketClone.velocity = -transform.up * 5f * speed ; //hastighet nedåt
 
-            // You can also acccess other components / scripts of the clone
-            //rocketClone.GetComponent<MyRocketScript>().DoSomething();
+            sinkingBoat("A1");
+
             }
-
-            // Calls the fire method when holding down ctrl or mouse
-
-
-            //Object bomb = Instantiate(originalbomb, place, originalbomb.transform.rotation);
-            //bomb.addComponent
-            //transform.Translate(Vector3.up * 260 * Time.deltaTime, Space.World);
     }
 
     public void OnChildsTriggerEnter(string name, Collider other)
@@ -256,7 +261,7 @@ public class BoardScript : MonoBehaviour {
     }
 
 
-    void OnTriggerExit(Collider other)
+    public void OnChildsTriggerExit(string name, Collider other)
     {
         Debug.Log("Boat gone");
 
