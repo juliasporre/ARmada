@@ -21,8 +21,11 @@ public class BoardScript : MonoBehaviour {
     public GameObject fireworks;
     public Rigidbody rocket;
     public float speed = 10f;
+	//public GameObject titanic;
+	public GameObject kryss;
+	public GameObject ring;
 
-    public string url = "http://130.229.174.226:8000/game"; //use this if other computer is server 
+    public string url = "http://130.229.175.61:8000/game"; //use this if other computer is server 
     //public string url = "http://localhost:8000/game";
 	// hårdkodat atm, får kolla på detta senare
     private IEnumerator printMessage;
@@ -30,9 +33,13 @@ public class BoardScript : MonoBehaviour {
 
     void Start()
     {
-        StartCoroutine(SendPosBoat(30)); //when starting the game, wait 20 sec to position the boats on the board
+		//Vector3 place = GameObject.Find("A1").transform.position;
+		//GameObject boatClone = Instantiate<GameObject>(titanic);
+        StartCoroutine(SendPosBoat(10)); //when starting the game, wait 20 sec to position the boats on the board
         //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
         InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
+
+
     }
 
     void callHelper()
@@ -130,6 +137,7 @@ public class BoardScript : MonoBehaviour {
     {
         Debug.Log("Your attack hit!");
 		fireMissle("o" + bombPos);
+		markHit ("o" + bombPos);
 
     }
 
@@ -137,6 +145,7 @@ public class BoardScript : MonoBehaviour {
     {
         Debug.Log("Your attack missed.");
 		fireMissle("o"+bombPos);
+		markMiss ("o" + bombPos);
 
 	}
 	void bombOpponentSunk(string bombPos)
@@ -184,20 +193,35 @@ public class BoardScript : MonoBehaviour {
                         sunkBoat.transform.Rotate(Vector3.forward, 2);
                         sunkBoat.transform.position += Vector3.down;
                     }
+					/*Rotation med tid
+					 * Transform from = sunkBoat.transform;
+					Transform to = -from;
 
+					sunkBoat.transform.rotation = Quaternion.Slerp (from.rotation, to.rotation, Time.time * speed);
+					*/
                 }
             }
         }
     }
 
+	void markHit (string bombPos)
+	{ //Places an O where boat was hit on opponents side
+		Vector3 place = GameObject.Find(bombPos).transform.position;
+		GameObject Success = Instantiate(ring, place,transform.rotation);
+	}
 
+	void markMiss(string bombPos)
+	{//Places an X where boat was hit on opponents side
+		Vector3 place = GameObject.Find(bombPos).transform.position;
+		GameObject Fail = Instantiate(kryss, place,transform.rotation);
+	}
+		
 	void win()
 	{
         //Julia, lägg in några coola animeringseffekter. Fyrverkerier eller nått xD
         userDisplay.GetComponent<Text>().text = "WINNER :D";
         fireworks.GetComponent<Renderer>().enabled = true;
         Debug.Log("YOU WIIIN YEEEH.");
-
 	}
 
 	void loss()
@@ -234,6 +258,8 @@ public class BoardScript : MonoBehaviour {
 			rocketClone.velocity = -transform.up * 5f * speed ; //hastighet nedåt
 
             sinkingBoat("A1");
+
+			markHit ("A1");
 
             }
     }
@@ -287,9 +313,7 @@ public class BoardScript : MonoBehaviour {
             }
             listToSend = listToSend + "x";
         }
-        //WWWForm form = new WWWForm();
-        //form.AddField("Positions", listToSend);
-		listToSend = "A1B1xD2D3D4"; //position of ship
+		//listToSend = "A1B1xD2D3D4"; //position of ship
 
 		string urlBoats = url + "?init=" + listToSend;
         Debug.Log("Sending " + urlBoats);
