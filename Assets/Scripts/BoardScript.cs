@@ -5,37 +5,42 @@ using UnityEngine.UI;
 
 
 /*TODO
- * Ta bort boxcolliders efter det att positionerna är skickade
- * Fylla i vad som händer när man får tillbaka attack
+ *
+ * 
  * 
  */
 
 public class BoardScript : MonoBehaviour {
 
     Dictionary<string, List<string>> boatsPos = new Dictionary<string, List<string>>();
-    Dictionary<string, Vector3> BoxesPos = new Dictionary<string, Vector3>();
+    Dictionary<string, List<string>> OpponentsBoatsPos = new Dictionary<string, List<string>>();
     string player; //This player
 
-    public GameObject originalbomb;
     public GameObject userDisplay;
     public GameObject fireworks;
     public Rigidbody rocket;
-    public float speed = 10f;
-	//public GameObject titanic;
+
 	public GameObject kryss;
 	public GameObject ring;
 
-    public string url = "http://130.229.175.61:8000/game"; //use this if other computer is server 
-    //public string url = "http://localhost:8000/game";
-	// hårdkodat atm, får kolla på detta senare
+    public GameObject birdaboat;
+    public GameObject blackperl;
+    public GameObject speedyboat;
+    public GameObject supersail;
+    public GameObject tinyboat;
+    public GameObject whitefang;
+
+
+
+
+    //public string url = "http://130.229.175.61:8000/game"; //use this if other computer is server 
+    public string url = "http://localhost:8000/game";
     private IEnumerator printMessage;
     int t = 0; //Begin the game, waiting for command 0
 
     void Start()
     {
-		//Vector3 place = GameObject.Find("A1").transform.position;
-		//GameObject boatClone = Instantiate<GameObject>(titanic);
-        StartCoroutine(SendPosBoat(10)); //when starting the game, wait 20 sec to position the boats on the board
+        StartCoroutine(SendPosBoat(20)); //when starting the game, wait 20 sec to position the boats on the board
         //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
         InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
 
@@ -44,7 +49,7 @@ public class BoardScript : MonoBehaviour {
 
     void callHelper()
     { //only surves to starts getMessage
-		if (player != null) //Dont ask for moves util player has been assigned in SendPosBoat
+		if (player != null) //Dont ask for moves until player has been assigned in SendPosBoat
 		{
        	 	printMessage = getMessage();
         	StartCoroutine(printMessage);
@@ -53,12 +58,9 @@ public class BoardScript : MonoBehaviour {
 
     IEnumerator getMessage()
     {
-		//Debug.Log("http://130.229.174.226:8000/game" + "?t=" + t);
 		WWW www = new WWW(url + "?t=" + t);
-        //Debug.Log("Getting message from server: ");
         yield return www;
-		//Debug.Log(www.text);
-	
+
         if (www.text.Length > 0)
         {
             t++;
@@ -76,84 +78,69 @@ public class BoardScript : MonoBehaviour {
 
     void makeMove(string[] commands)
     {
-		if (commands[1] == player && commands[2] == "WIN") //X=sunk
-		{
-			win();
-			//Display a text that says "You are the champion"
-		}
-		else if (commands[1] != player && commands[2] == "WIN") //X=sunk
-		{
-			loss();
-			//Display a text that says "You have lost"
-		}
-
-		//If the game has not yet reached end state:
-        else if(commands[1] == player && commands[3] == "x") //x= hit
+        if (commands[1] == player && commands[2] == "WIN")
         {
-            bombOpponentHit(commands[2]);
-			//display an mark of hit at position commands[3] side of opponent
-			//Vector3 place = GameObject.Find("o" + commands[3]).transform.position;
-			//Object success = Instantiate(SuccessMark, place, transform.rotation);
-
+            win();
+        }
+        else if (commands[1] != player && commands[2] == "WIN")
+        {
+            loss();
+        }
+        //If the game has not yet reached end state: commands[4] should be name of opponents boat
+        else if (commands[1] == player && commands[3] == "x") //x = hit
+        {
+            bombOpponentHit("o" + commands[2]);
+            if (OpponentsBoatsPos.ContainsKey(commands[4]))
+            {
+                List<string> list = OpponentsBoatsPos[commands[4]];
+                list.Add("o" + commands[2]);
+            }
+            else if (OpponentsBoatsPos.ContainsKey(commands[4]) == false)
+            {
+                List<string> list = new List<string>();
+                list.Add("o" + commands[2]);
+                OpponentsBoatsPos.Add(commands[4], list);
+            }
         }
         else if (commands[1] == player && commands[3] == "o") //o = miss
         {
-            bombOpponentMiss(commands[2]);
-			//display an mark of miss at position commands[3]
-			//Vector3 place = GameObject.Find("o" + commands[3]).transform.position;
-			//Object fail = Instantiate(MissMark, place, transform.rotation);
+            bombOpponentMiss("o" + commands[2]);
         }
-		else if (commands[1] == player && commands[3] == "X") //X=sunk
-		{
-			bombOpponentSunk(commands[2]);
-			//display the boat that was sunk
-			//Vector3 place = GameObject.Find("o" + commands[3]).transform.position;
-			//instantiate a sunk boat at its original position. Or instanstiate at the beginning and make it visible here?
-			//Object bomb = Instantiate(TheBoatThatWasSunk(boatsPos[commands[3]], place, originalbomb.transform.rotation);
-		}
+        else if (commands[1] == player && commands[3] == "X") //X = sunk
+        {
+            bombOpponentSunk("o" + commands[2], commands[4]);
+        }
 
-		//if turn is opponent
-        else if (commands[1] != player && commands[3] == "x") //x= hit
+        //if turn is opponent
+        else if (commands[1] != player && commands[3] == "x") //x = hit
         {
             bombMeHit(commands[2]);
-
-			//Vector3 place = GameObject.Find(commands[3]).transform.position;
         }
-        else if (commands[1] != player && commands[3] == "o") //o=miss
+        else if (commands[1] != player && commands[3] == "o") //o = miss
         {
             bombMeMiss(commands[2]);
-			//Vector3 place = GameObject.Find(commands[3]).transform.position;
-
-
         }
-		else if (commands[1] != player && commands[3] == "X") //X=sunk
-		{
-			bombMeSunk(commands[2]);
-		}
-	
+        else if (commands[1] != player && commands[3] == "X") //X = sunk
+        {
+            bombMeSunk(commands[2]);
+        }
     }
 
     void bombOpponentHit(string bombPos)
     {
         Debug.Log("Your attack hit!");
-		fireMissle("o" + bombPos);
-		markHit ("o" + bombPos);
-
+		fireMissle(bombPos);
+		markHit (bombPos);
     }
 
     void bombOpponentMiss(string bombPos)
     {
         Debug.Log("Your attack missed.");
-		fireMissle("o"+bombPos);
-		markMiss ("o" + bombPos);
-
+		fireMissle(bombPos);
+		markMiss(bombPos);
 	}
-	void bombOpponentSunk(string bombPos)
-	{
-		Debug.Log ("You sank the opponents boat!");
-		fireMissle("o"+bombPos);
 
-	}
+
     void bombMeHit(string bombPos)
     {
         Debug.Log("Your boat was hit!");
@@ -166,17 +153,42 @@ public class BoardScript : MonoBehaviour {
 		fireMissle(bombPos);
     }
 
-	void bombMeSunk(string bombPos)
+    void bombOpponentSunk(string bombPos, string boat)
+    {
+        Debug.Log("You sank the opponents boat!");
+        fireMissle(bombPos);
+        markHit(bombPos);
+
+        //Calculating placement of the ship
+        List<string> posList = OpponentsBoatsPos[boat];
+        Vector3 middlepoint = new Vector3(0, 0, 0);
+        foreach (string position in posList)
+        {
+            middlepoint += GameObject.Find(position).transform.position;
+        }
+        middlepoint = middlepoint / posList.Count;
+        //Möjligt att detta inte fungerar, ändra så att det blir som explosion, missile osv.
+        GameObject opponentsSinkingBoat = Instantiate(GameObject.Find(boat), middlepoint, transform.rotation);
+        opponentsSinkingBoat.transform.SetParent(GameObject.Find(bombPos).transform, false);
+
+        sinkingBoat(bombPos);
+
+        //Removes boxcolliders, O and X from the game board
+        foreach(string position in posList)
+        {
+            Destroy(GameObject.Find(position));
+        }
+    }
+
+    void bombMeSunk(string bombPos)
 	{
 		Debug.Log("Your boat was sunk.");
 		fireMissle(bombPos);
         sinkingBoat(bombPos);
 	}
 
-
     void sinkingBoat(string boatPos)
     {
-        Debug.Log("NU SJUNKER DEN");
         foreach (string boat in boatsPos.Keys)
         {
             Debug.Log(boat);
@@ -185,7 +197,6 @@ public class BoardScript : MonoBehaviour {
             {
                 if(position == boatPos)
                 {
-                    Debug.Log("FOUND THE BOAT");
                     var sunkBoat = GameObject.Find(boat);
                     Debug.Log(sunkBoat);
                     for(int i = 0; i < 50; i++)
@@ -197,7 +208,7 @@ public class BoardScript : MonoBehaviour {
 					 * Transform from = sunkBoat.transform;
 					Transform to = -from;
 
-					sunkBoat.transform.rotation = Quaternion.Slerp (from.rotation, to.rotation, Time.time * speed);
+					sunkBoat.transform.rotation = Quaternion.Slerp (from.rotation, to.rotation, Time.time * 5f);
 					*/
                 }
             }
@@ -207,28 +218,28 @@ public class BoardScript : MonoBehaviour {
 	void markHit (string bombPos)
 	{ //Places an O where boat was hit on opponents side
 		Vector3 place = GameObject.Find(bombPos).transform.position;
-		GameObject Success = Instantiate(ring, place,transform.rotation);
-	}
+		GameObject success = Instantiate(ring, place,transform.rotation);
+        success.transform.SetParent(GameObject.Find(bombPos).transform, false);
+    }
 
 	void markMiss(string bombPos)
 	{//Places an X where boat was hit on opponents side
 		Vector3 place = GameObject.Find(bombPos).transform.position;
-		GameObject Fail = Instantiate(kryss, place,transform.rotation);
-	}
+		GameObject fail = Instantiate(kryss, place,transform.rotation);
+        fail.transform.SetParent(GameObject.Find(bombPos).transform, false);
+    }
 		
 	void win()
 	{
-        //Julia, lägg in några coola animeringseffekter. Fyrverkerier eller nått xD
         userDisplay.GetComponent<Text>().text = "WINNER :D";
         fireworks.GetComponent<Renderer>().enabled = true;
-        Debug.Log("YOU WIIIN YEEEH.");
+        Debug.Log("YOU WON");
 	}
 
 	void loss()
 	{
-		//Julia, lägg in några coola animeringseffekter. :)  typ regn, #sadface
-		Debug.Log("You lose, goddamit. Loser. :/");
-        userDisplay.GetComponent<Text>().text = "YOU ARE THE LOOOOOOZER";
+		Debug.Log("You lose");
+        userDisplay.GetComponent<Text>().text = "YOU LOST";
     }
 
 	void fireMissle(string boxName)
@@ -240,7 +251,7 @@ public class BoardScript : MonoBehaviour {
 
         rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
 
-        rocketClone.velocity = -transform.up * 5f * speed; //hastighet nedåt*/
+        rocketClone.velocity = -transform.up * 5f; //hastighet nedåt*/
     }
     void Update()
     {
@@ -255,7 +266,7 @@ public class BoardScript : MonoBehaviour {
 
 			rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
 
-			rocketClone.velocity = -transform.up * 5f * speed ; //hastighet nedåt
+			rocketClone.velocity = -transform.up * 5f; //hastighet nedåt
 
             sinkingBoat("A1");
 
@@ -264,7 +275,7 @@ public class BoardScript : MonoBehaviour {
             }
     }
 
-    public void OnChildsTriggerEnter(string name, Collider other)
+    public void OnChildsTriggerEnter(string name, Collider other) // Other = boat
     {
         Debug.Log("Placed a boat named: " + other.name);
         if (boatsPos.ContainsKey(other.name))
@@ -273,7 +284,6 @@ public class BoardScript : MonoBehaviour {
             if (list.Contains(name) == false)
             {
                 list.Add(name);
-                Debug.Log("box name" + name);
             }
         }
         else
@@ -281,69 +291,59 @@ public class BoardScript : MonoBehaviour {
             List<string> list = new List<string>();
             list.Add(name);
             boatsPos.Add(other.name, list);
-            Debug.Log("box name when boat existed in list" + name);
-            Debug.Log(GetComponent<Collider>());
         }
     }
 
 
     public void OnChildsTriggerExit(string name, Collider other)
     {
-        Debug.Log("Boat gone");
-
+        Debug.Log("Removed " + other.name + " from " + name);
         if (boatsPos.ContainsKey(other.name))
         {
-            boatsPos.Remove(other.name);
+            List<string> list = boatsPos[other.name];
+            if (list.Contains(name) && list.Count > 1)
+            {
+                list.Remove(name);
+            }
+            else if (list.Contains(name) && list.Count == 1)
+            {
+                list.Remove(other.name);
+            }
         }
     }
 
 
     IEnumerator SendPosBoat(float time)
     {
-		//Bygger på tokens för båtar. 
+		//Gets the position of each boat
         yield return new WaitForSeconds(time);
         string listToSend = "";
 
         foreach (string boat in boatsPos.Keys)
         {
+            listToSend += boat;
             List<string> posList = boatsPos[boat];
             foreach (string position in posList)
             {
-                listToSend = listToSend + position;
+                listToSend +=  position;
             }
-            listToSend = listToSend + "x";
+            listToSend += "x";
         }
-		//listToSend = "A1B1xD2D3D4"; //position of ship
+		//listToSend = "blackperl_A1B1xtitanic_D2D3D4"; //position of ship for testing
 
 		string urlBoats = url + "?init=" + listToSend;
         Debug.Log("Sending " + urlBoats);
         WWW www = new WWW(urlBoats);
-        //StartCoroutine(WaitForRequest(www));
 		yield return www;
 
-		Debug.Log("You are now " + www.text);
-		player = www.text;
+        player = www.text;
+        Debug.Log("You are now " + player);
+
         var allColliders = GetComponentsInChildren<Collider>();
         foreach (var childCollider in allColliders)
         {
             Destroy(childCollider);
         }
     }
-
-        IEnumerator WaitForRequest(WWW www)
-    {
-        yield return www;
-   
-        // check for errors
-        if (www.error == null)
-        {
-            Debug.Log("WWW Ok!");
-        }
-        else
-        {
-            Debug.Log("WWW Error");
-        }
-    }
-
 }
 

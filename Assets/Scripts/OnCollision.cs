@@ -7,12 +7,12 @@ public class OnCollision : MonoBehaviour
 
 	void OnCollisionEnter (Collision collision)
 	{
-		Debug.Log ("missile collided with boat");
+		Debug.Log ("missile collided");
 
         Vector3 place = transform.position;
 
-        Object explosionBoat = Instantiate(explosion, place, transform.rotation * Quaternion.Euler(90, 0, 0));
-        explosion.transform.parent = transform; //fäster raketen på board
+        GameObject explosionBoat = Instantiate(explosion, place, transform.rotation * Quaternion.Euler(90, 0, 0));
+        explosionBoat.transform.SetParent(GameObject.Find(collision.ToString()).transform, false);
         Destroy(this.gameObject);
 
     }
