@@ -557,9 +557,9 @@ PlayerSettings:
     Game_Performance: 0
     Hub: 0
     Purchasing: 0
-    UNet: 0
+    UNet: 1
     Unity_Ads: 0
-  cloudProjectId: 
-  projectName: 
-  organizationId: 
+  cloudProjectId: 5eaa4cbe-6cec-41cc-b025-ee582825ba13
+  projectName: 2013_10 - Sample Assets (1)
+  organizationId: juliasp
   cloudEnabled: 0

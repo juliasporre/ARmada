@@ -5,15 +5,15 @@ public class OnCollision : MonoBehaviour
 {
     public GameObject explosion;
 
-	void OnCollisionEnter (Collision collision)
+    //void OnCollisionEnter(Collision collision)
+    void OnTriggerEnter(Collider other)
 	{
-		Debug.Log ("missile collided");
+        Vector3 place = other.transform.position;
+        place.y += 1;
 
-        Vector3 place = transform.position;
-
-        GameObject explosionBoat = Instantiate(explosion, place, transform.rotation * Quaternion.Euler(90, 0, 0));
-        //Debug.Log(collision.ToString());
-        //explosionBoat.transform.SetParent(GameObject.Find(collision.ToString()).transform, false);
+        Debug.Log ("missile collided with " + other.name);
+        GameObject explosionBoat = Instantiate(explosion, place, other.transform.rotation);
+        explosionBoat.GetComponent<Transform>().SetParent(other.transform);
         Destroy(this.gameObject);
 
     }

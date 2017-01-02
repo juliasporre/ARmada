@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System;
+using System.Linq;
 
 
 /*TODO
@@ -30,9 +32,6 @@ public class BoardScript : MonoBehaviour {
     public GameObject tinyboat;
     public GameObject whitefang;
 
-
-
-
     //public string url = "http://130.229.175.61:8000/game"; //use this if other computer is server 
     public string url = "http://localhost:8000/game";
     private IEnumerator printMessage;
@@ -40,9 +39,9 @@ public class BoardScript : MonoBehaviour {
 
     void Start()
     {
-        StartCoroutine(SendPosBoat(20f)); //when starting the game, wait 20 sec to position the boats on the board
+        //StartCoroutine(SendPosBoat(20f)); //when starting the game, wait 20 sec to position the boats on the board
         //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
-        InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
+        //InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
 
 
     }
@@ -119,7 +118,7 @@ public class BoardScript : MonoBehaviour {
                 list.Add("o" + commands[2]);
                 OpponentsBoatsPos.Add(commands[4], list);
             }
-            bombOpponentSunk("o" + commands[2], commands[4]);
+            StartCoroutine(bombOpponentSunk("o" + commands[2], commands[4]));
         }
 
         //if turn is opponent
@@ -141,14 +140,14 @@ public class BoardScript : MonoBehaviour {
     {
         Debug.Log("Your attack hit!");
 		fireMissle(bombPos);
-		markHit (bombPos);
+        StartCoroutine(markHit(bombPos));
     }
 
     void bombOpponentMiss(string bombPos)
     {
         Debug.Log("Your attack missed.");
 		fireMissle(bombPos);
-		markMiss(bombPos);
+        StartCoroutine(markMiss(bombPos));
 	}
 
 
@@ -164,11 +163,14 @@ public class BoardScript : MonoBehaviour {
 		fireMissle(bombPos);
     }
 
-    void bombOpponentSunk(string bombPos, string boat)
+    IEnumerator bombOpponentSunk(string bombPos, string boat)
     {
+        StartCoroutine(markHit(bombPos));
+                fireMissle(bombPos);
+        yield return new WaitForSeconds(6f);
         Debug.Log("You sank the opponents boat!");
-        fireMissle(bombPos);
-        markHit(bombPos);
+
+
 
         //Calculating placement of the ship
         List<string> posList = OpponentsBoatsPos[boat];
@@ -179,95 +181,165 @@ public class BoardScript : MonoBehaviour {
         }
         middlepoint = middlepoint / posList.Count;
         Debug.Log(boat);
-        //Möjligt att detta inte fungerar, ändra så att det blir som explosion, missile osv.
-        GameObject opponentsSinkingBoat = Instantiate(GameObject.Find(boat), middlepoint, transform.rotation);
-        opponentsSinkingBoat.transform.SetParent(GameObject.Find(bombPos).transform, false);
 
-        sinkingBoat(bombPos);
-
-        //Removes boxcolliders, O and X from the game board
-        foreach(string position in posList)
+        if (boat == "birdaboat")
         {
-            Destroy(GameObject.Find(position));
+            GameObject opponentsSinkingBoat = Instantiate(birdaboat, middlepoint, Quaternion.Euler(90, 90, 0));
+            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
+            opponentsSinkingBoat.transform.position = middlepoint;
+            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
+            opponentsSinkingBoat.transform.rotation = qu;
+            Action toRepeat = () => {
+                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
+            };
+
+            int repeat = 10;
+            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+
         }
+        else if (boat == "blackperl")
+        {
+            GameObject opponentsSinkingBoat = Instantiate(blackperl, middlepoint, transform.rotation);
+            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
+            opponentsSinkingBoat.transform.position = middlepoint;
+            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
+            opponentsSinkingBoat.transform.rotation = qu;
+            Action toRepeat = () => {
+                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
+            };
+
+            int repeat = 10;
+            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+        }
+        else if (boat == "supersail")
+        {
+            GameObject opponentsSinkingBoat = Instantiate(supersail, middlepoint, transform.rotation);
+            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
+            opponentsSinkingBoat.transform.position = middlepoint;
+            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
+            opponentsSinkingBoat.transform.rotation = qu;
+            Action toRepeat = () => {
+                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
+            };
+
+            int repeat = 10;
+            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+        }
+        else if (boat == "speedyboat")
+        {
+            GameObject opponentsSinkingBoat = Instantiate(speedyboat, middlepoint, transform.rotation);
+            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
+            opponentsSinkingBoat.transform.position = middlepoint;
+            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
+            opponentsSinkingBoat.transform.rotation = qu;
+            Action toRepeat = () => {
+                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
+            };
+
+            int repeat = 10;
+            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+        }
+        else if (boat == "tinyboat")
+        {
+            GameObject opponentsSinkingBoat = Instantiate(tinyboat, middlepoint, transform.rotation);
+            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
+            opponentsSinkingBoat.transform.position = middlepoint;
+            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
+            opponentsSinkingBoat.transform.rotation = qu;
+            Action toRepeat = () => {
+                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
+            };
+
+            int repeat = 10;
+            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+        }
+        else if (boat == "whitefang")
+        {
+            GameObject opponentsSinkingBoat = Instantiate(whitefang, middlepoint, new Quaternion(0,0,0,0));
+            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
+            opponentsSinkingBoat.transform.position = middlepoint;
+            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
+            opponentsSinkingBoat.transform.rotation = qu;
+            Action toRepeat = () => {
+                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
+            };
+
+            int repeat = 10;
+            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+
+        }
+
+
+        //StartCoroutine(sinkingBoat(bombPos));
+
     }
 
     void bombMeSunk(string bombPos)
-	{
-		Debug.Log("Your boat was sunk.");
-		fireMissle(bombPos);
-        sinkingBoat(bombPos);
-	}
-
-    void sinkingBoat(string boatPos)
     {
+        Debug.Log("Your boat was sunk.");
+        fireMissle(bombPos);
         foreach (string boat in boatsPos.Keys)
         {
             Debug.Log(boat);
             List<string> posList = boatsPos[boat];
             foreach (string position in posList)
             {
-                if(position == boatPos)
+                if (position == bombPos)
                 {
-                    var sunkBoat = GameObject.Find(boat);
-                    Debug.Log(sunkBoat);
-                    for(int i = 0; i < 50; i++)
+                    Action toRepeat = () =>
                     {
-                        sunkBoat.transform.Rotate(Vector3.forward, 2);
-                        sunkBoat.transform.position += Vector3.down;
-                    }
-					/*Rotation med tid
-					 * Transform from = sunkBoat.transform;
-					Transform to = -from;
+                        StartCoroutine(sinkingBoat(GameObject.Find(boat)));
+                    };
 
-					sunkBoat.transform.rotation = Quaternion.Slerp (from.rotation, to.rotation, Time.time * 5f);
-					*/
+                    int repeat = 10;
+                    Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
                 }
             }
         }
     }
 
-	void markHit (string bombPos)
-	{ //Places an O where boat was hit on opponents side
-      //Vector3 place = GameObject.Find(bombPos).transform.position;
-        Vector3 place = new Vector3(0, 0, 0);
+     IEnumerator sinkingBoat(GameObject sunkBoat)
+    {
+        yield return new WaitForSeconds(3f);
+        //Does not work...
+        sunkBoat.transform.Rotate(Vector3.forward, 9);
+    }
 
-        GameObject success = Instantiate(ring, place,transform.rotation);
+	IEnumerator markHit (string bombPos)
+	{ //Places an O where boat was hit on opponents side
+        yield return new WaitForSeconds(3.7f);
+        GameObject success = Instantiate(ring, new Vector3(0, 0.4f, 0), new Quaternion(0, 0, 0, 0));
         success.transform.SetParent(GameObject.Find(bombPos).transform, false);
     }
 
-	void markMiss(string bombPos)
+	IEnumerator markMiss(string bombPos)
 	{//Places an X where boat was hit on opponents side
-		//Vector3 place = GameObject.Find(bombPos).transform.position;
-        Vector3 place = new Vector3(0, 0, 0);
-        GameObject fail = Instantiate(kryss, place,transform.rotation);
-        fail.transform.SetParent(GameObject.Find(bombPos).transform, false);
+        yield return new WaitForSeconds(3.7f);
+        GameObject success = Instantiate(kryss, new Vector3(0, 0.4f, 0), new Quaternion(0, 0, 0, 0));
+        success.transform.SetParent(GameObject.Find(bombPos).transform, false);
     }
 		
 	void win()
 	{
-        userDisplay.GetComponent<Text>().text = "WINNER :D";
-        fireworks.GetComponent<Renderer>().enabled = true;
-        Debug.Log("YOU WON");
+        userDisplay.GetComponent<Text>().text = "CONGRATULATIONS, YOU WON THE GAME!";
+        fireworks.SetActive(true);
 	}
 
 	void loss()
 	{
-		Debug.Log("You lose");
-        userDisplay.GetComponent<Text>().text = "YOU LOST";
+        userDisplay.GetComponent<Text>().text = "YOU LOST THE GAME";
     }
 
-	void fireMissle(string boxName)
-	//creates a missle above the box "A1,A2..." that was sent by command
-	{
+    void fireMissle(string boxName)
+    //creates a missle above the box "A1,A2..." that was sent by command
+    {
         Vector3 place = GameObject.Find(boxName).transform.position;
         Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation * Quaternion.Euler(90, 0, 0));
         rocketClone.transform.parent = transform; //fäster raketen på board
-
         rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
-
-        rocketClone.velocity = -transform.up * 5f; //hastighet nedåt
+        rocketClone.velocity = -transform.up * 10f; //hastighet nedåt
     }
+
     void Update()
     {
 
@@ -275,22 +347,32 @@ public class BoardScript : MonoBehaviour {
        {
             //Test code, works with space
             Debug.Log("TEST BOMBING");
-            Vector3 place = GameObject.Find("A1").transform.position;
+            Vector3 place = GameObject.Find("oA1").transform.position;
 			Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation*Quaternion.Euler(90,0,0));
 			rocketClone.transform.parent = transform; //fäster raketen på board
-
 			rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
+			rocketClone.velocity = -transform.up * 10f; //hastighet nedåt
+            StartCoroutine(markHit("A1"));
 
-			rocketClone.velocity = -transform.up * 5f; //hastighet nedåt
+        }
 
-            sinkingBoat("A1");
+        if (Input.GetKeyDown("up"))
+        {
+            List<string> list = new List<string>();
+            list.Add("oA1");
+            list.Add("oA2");
+            StartCoroutine(markHit("oA1"));
+            StartCoroutine(markHit("oA2"));
 
-			markHit ("A1");
-
-            }
+            OpponentsBoatsPos.Add("birdaboat", list);
+        }
+        if (Input.GetKeyDown("down"))
+        {
+            StartCoroutine(bombOpponentSunk("oA3", "birdaboat"));
+        }
     }
 
-    public void OnChildsTriggerEnter(string name, Collider other) // Other = boat
+    public void OnChildsTriggerEnter(string name, Collider other) // Other = Gameobject boat
     {
         Debug.Log("Placed a boat named: " + other.name);
         if (boatsPos.ContainsKey(other.name))
