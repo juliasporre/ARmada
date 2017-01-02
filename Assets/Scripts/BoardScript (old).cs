@@ -10,7 +10,7 @@ using UnityEngine.UI;
  * 
  */
 
-public class BoardScript : MonoBehaviour
+public class BoardScriptold : MonoBehaviour
 {
 
     Dictionary<string, List<string>> boatsPos = new Dictionary<string, List<string>>();

@@ -40,7 +40,7 @@ public class BoardScript : MonoBehaviour {
 
     void Start()
     {
-        StartCoroutine(SendPosBoat(20)); //when starting the game, wait 20 sec to position the boats on the board
+        StartCoroutine(SendPosBoat(20f)); //when starting the game, wait 20 sec to position the boats on the board
         //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
         InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
 
@@ -87,7 +87,7 @@ public class BoardScript : MonoBehaviour {
             loss();
         }
         //If the game has not yet reached end state: commands[4] should be name of opponents boat
-        else if (commands[1] == player && commands[3] == "x") //x = hit
+        else if (commands.Length > 3 && commands[1] == player && commands[3] == "x") //x = hit
         {
             bombOpponentHit("o" + commands[2]);
             if (OpponentsBoatsPos.ContainsKey(commands[4]))
@@ -102,25 +102,36 @@ public class BoardScript : MonoBehaviour {
                 OpponentsBoatsPos.Add(commands[4], list);
             }
         }
-        else if (commands[1] == player && commands[3] == "o") //o = miss
+        else if (commands.Length > 3 && commands[1] == player && commands[3] == "o") //o = miss
         {
             bombOpponentMiss("o" + commands[2]);
         }
-        else if (commands[1] == player && commands[3] == "X") //X = sunk
+        else if (commands.Length > 3 && commands[1] == player && commands[3] == "X") //X = sunk
         {
+            if (OpponentsBoatsPos.ContainsKey(commands[4]))
+            {
+                List<string> list = OpponentsBoatsPos[commands[4]];
+                list.Add("o" + commands[2]);
+            }
+            else if (OpponentsBoatsPos.ContainsKey(commands[4]) == false)
+            {
+                List<string> list = new List<string>();
+                list.Add("o" + commands[2]);
+                OpponentsBoatsPos.Add(commands[4], list);
+            }
             bombOpponentSunk("o" + commands[2], commands[4]);
         }
 
         //if turn is opponent
-        else if (commands[1] != player && commands[3] == "x") //x = hit
+        else if (commands.Length > 3 && commands[1] != player && commands[3] == "x") //x = hit
         {
             bombMeHit(commands[2]);
         }
-        else if (commands[1] != player && commands[3] == "o") //o = miss
+        else if (commands.Length > 3 && commands[1] != player && commands[3] == "o") //o = miss
         {
             bombMeMiss(commands[2]);
         }
-        else if (commands[1] != player && commands[3] == "X") //X = sunk
+        else if (commands.Length > 3 && commands[1] != player && commands[3] == "X") //X = sunk
         {
             bombMeSunk(commands[2]);
         }
@@ -167,6 +178,7 @@ public class BoardScript : MonoBehaviour {
             middlepoint += GameObject.Find(position).transform.position;
         }
         middlepoint = middlepoint / posList.Count;
+        Debug.Log(boat);
         //Möjligt att detta inte fungerar, ändra så att det blir som explosion, missile osv.
         GameObject opponentsSinkingBoat = Instantiate(GameObject.Find(boat), middlepoint, transform.rotation);
         opponentsSinkingBoat.transform.SetParent(GameObject.Find(bombPos).transform, false);
@@ -217,15 +229,18 @@ public class BoardScript : MonoBehaviour {
 
 	void markHit (string bombPos)
 	{ //Places an O where boat was hit on opponents side
-		Vector3 place = GameObject.Find(bombPos).transform.position;
-		GameObject success = Instantiate(ring, place,transform.rotation);
+      //Vector3 place = GameObject.Find(bombPos).transform.position;
+        Vector3 place = new Vector3(0, 0, 0);
+
+        GameObject success = Instantiate(ring, place,transform.rotation);
         success.transform.SetParent(GameObject.Find(bombPos).transform, false);
     }
 
 	void markMiss(string bombPos)
 	{//Places an X where boat was hit on opponents side
-		Vector3 place = GameObject.Find(bombPos).transform.position;
-		GameObject fail = Instantiate(kryss, place,transform.rotation);
+		//Vector3 place = GameObject.Find(bombPos).transform.position;
+        Vector3 place = new Vector3(0, 0, 0);
+        GameObject fail = Instantiate(kryss, place,transform.rotation);
         fail.transform.SetParent(GameObject.Find(bombPos).transform, false);
     }
 		
@@ -245,13 +260,13 @@ public class BoardScript : MonoBehaviour {
 	void fireMissle(string boxName)
 	//creates a missle above the box "A1,A2..." that was sent by command
 	{
-        /*Vector3 place = GameObject.Find(boxName).transform.position;
+        Vector3 place = GameObject.Find(boxName).transform.position;
         Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation * Quaternion.Euler(90, 0, 0));
         rocketClone.transform.parent = transform; //fäster raketen på board
 
         rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
 
-        rocketClone.velocity = -transform.up * 5f; //hastighet nedåt*/
+        rocketClone.velocity = -transform.up * 5f; //hastighet nedåt
     }
     void Update()
     {
@@ -321,17 +336,19 @@ public class BoardScript : MonoBehaviour {
 
         foreach (string boat in boatsPos.Keys)
         {
-            listToSend += boat;
+            listToSend += boat + "_";
             List<string> posList = boatsPos[boat];
             foreach (string position in posList)
             {
                 listToSend +=  position;
             }
-            listToSend += "x";
-        }
-		//listToSend = "blackperl_A1B1xtitanic_D2D3D4"; //position of ship for testing
 
-		string urlBoats = url + "?init=" + listToSend;
+            listToSend += "_";
+        }
+        listToSend = listToSend.Remove(listToSend.Length - 1);
+        //listToSend = "blackperl_A1B1xtitanic_D2D3D4"; //position of ship for testing
+
+        string urlBoats = url + "?init=" + listToSend;
         Debug.Log("Sending " + urlBoats);
         WWW www = new WWW(urlBoats);
 		yield return www;
