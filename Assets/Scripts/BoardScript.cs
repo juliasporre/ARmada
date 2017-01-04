@@ -63,7 +63,6 @@ public class BoardScript : MonoBehaviour {
         if (www.text.Length > 0)
         {
             t++;
-
             string recivedCommands = www.text;
             Debug.Log(recivedCommands);
             string[] commands = recivedCommands.Split(' '); //recieved commands are seperated by " "
@@ -166,11 +165,9 @@ public class BoardScript : MonoBehaviour {
     IEnumerator bombOpponentSunk(string bombPos, string boat)
     {
         StartCoroutine(markHit(bombPos));
-                fireMissle(bombPos);
+        fireMissle(bombPos);
         yield return new WaitForSeconds(6f);
         Debug.Log("You sank the opponents boat!");
-
-
 
         //Calculating placement of the ship
         List<string> posList = OpponentsBoatsPos[boat];
@@ -180,98 +177,36 @@ public class BoardScript : MonoBehaviour {
             middlepoint += GameObject.Find(position).transform.position;
         }
         middlepoint = middlepoint / posList.Count;
-        Debug.Log(boat);
 
-        if (boat == "birdaboat")
+        GameObject sunkBoat = birdaboat;
+
+        if (boat == "blackperl")
         {
-            GameObject opponentsSinkingBoat = Instantiate(birdaboat, middlepoint, Quaternion.Euler(90, 90, 0));
-            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
-            opponentsSinkingBoat.transform.position = middlepoint;
-            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
-            opponentsSinkingBoat.transform.rotation = qu;
-            Action toRepeat = () => {
-                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
-            };
-
-            int repeat = 10;
-            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
-
-        }
-        else if (boat == "blackperl")
-        {
-            GameObject opponentsSinkingBoat = Instantiate(blackperl, middlepoint, transform.rotation);
-            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
-            opponentsSinkingBoat.transform.position = middlepoint;
-            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
-            opponentsSinkingBoat.transform.rotation = qu;
-            Action toRepeat = () => {
-                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
-            };
-
-            int repeat = 10;
-            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+            sunkBoat = blackperl;
         }
         else if (boat == "supersail")
         {
-            GameObject opponentsSinkingBoat = Instantiate(supersail, middlepoint, transform.rotation);
-            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
-            opponentsSinkingBoat.transform.position = middlepoint;
-            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
-            opponentsSinkingBoat.transform.rotation = qu;
-            Action toRepeat = () => {
-                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
-            };
-
-            int repeat = 10;
-            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+            sunkBoat = supersail;
         }
         else if (boat == "speedyboat")
         {
-            GameObject opponentsSinkingBoat = Instantiate(speedyboat, middlepoint, transform.rotation);
-            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
-            opponentsSinkingBoat.transform.position = middlepoint;
-            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
-            opponentsSinkingBoat.transform.rotation = qu;
-            Action toRepeat = () => {
-                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
-            };
-
-            int repeat = 10;
-            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+            sunkBoat = speedyboat;
         }
         else if (boat == "tinyboat")
         {
-            GameObject opponentsSinkingBoat = Instantiate(tinyboat, middlepoint, transform.rotation);
-            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
-            opponentsSinkingBoat.transform.position = middlepoint;
-            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
-            opponentsSinkingBoat.transform.rotation = qu;
-            Action toRepeat = () => {
-                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
-            };
-
-            int repeat = 10;
-            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+            sunkBoat = tinyboat;
         }
         else if (boat == "whitefang")
         {
-            GameObject opponentsSinkingBoat = Instantiate(whitefang, middlepoint, new Quaternion(0,0,0,0));
-            opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
-            opponentsSinkingBoat.transform.position = middlepoint;
-            Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
-            opponentsSinkingBoat.transform.rotation = qu;
-            Action toRepeat = () => {
-                StartCoroutine(sinkingBoat(opponentsSinkingBoat));
-            };
-
-            int repeat = 10;
-            Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
-
+            sunkBoat = whitefang;
         }
 
-
-        //StartCoroutine(sinkingBoat(bombPos));
-
+        GameObject opponentsSinkingBoat = Instantiate(sunkBoat, middlepoint, transform.rotation);
+        opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
+        opponentsSinkingBoat.transform.position = middlepoint;
+        //Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
+        opponentsSinkingBoat.transform.rotation = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
+        opponentsSinkingBoat.GetComponent<Animator>().enabled = true;
     }
 
     void bombMeSunk(string bombPos)
@@ -280,29 +215,16 @@ public class BoardScript : MonoBehaviour {
         fireMissle(bombPos);
         foreach (string boat in boatsPos.Keys)
         {
-            Debug.Log(boat);
             List<string> posList = boatsPos[boat];
             foreach (string position in posList)
             {
                 if (position == bombPos)
                 {
-                    Action toRepeat = () =>
-                    {
-                        StartCoroutine(sinkingBoat(GameObject.Find(boat)));
-                    };
-
-                    int repeat = 10;
-                    Enumerable.Range(0, repeat).ToList().ForEach(i => toRepeat());
+                    //ändra så att det är gameobjekt boat som är key? 
+                    GameObject.Find(boat).GetComponent<Animator>().enabled = true;
                 }
             }
         }
-    }
-
-     IEnumerator sinkingBoat(GameObject sunkBoat)
-    {
-        yield return new WaitForSeconds(3f);
-        //Does not work...
-        sunkBoat.transform.Rotate(Vector3.forward, 9);
     }
 
 	IEnumerator markHit (string bombPos)
@@ -346,13 +268,16 @@ public class BoardScript : MonoBehaviour {
         if (Input.GetKeyDown("space"))
        {
             //Test code, works with space
-            Debug.Log("TEST BOMBING");
+            /*Debug.Log("TEST BOMBING");
             Vector3 place = GameObject.Find("oA1").transform.position;
 			Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation*Quaternion.Euler(90,0,0));
 			rocketClone.transform.parent = transform; //fäster raketen på board
 			rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
 			rocketClone.velocity = -transform.up * 10f; //hastighet nedåt
-            StartCoroutine(markHit("A1"));
+            StartCoroutine(markHit("A1"));*/
+            GameObject.Find("blackperl").GetComponent<Animator>().enabled = true;
+
+            
 
         }
 
@@ -364,11 +289,11 @@ public class BoardScript : MonoBehaviour {
             StartCoroutine(markHit("oA1"));
             StartCoroutine(markHit("oA2"));
 
-            OpponentsBoatsPos.Add("birdaboat", list);
+            OpponentsBoatsPos.Add("speedyboat", list);
         }
         if (Input.GetKeyDown("down"))
         {
-            StartCoroutine(bombOpponentSunk("oA3", "birdaboat"));
+            StartCoroutine(bombOpponentSunk("oA3", "speedyboat"));
         }
     }
 
