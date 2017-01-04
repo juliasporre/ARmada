@@ -2,15 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using System;
-using System.Linq;
 
-
-/*TODO
- *
+/* TODO
+ * baka ihop markmiss och markhit
  * 
- * 
- */
+ * */
 
 public class BoardScript : MonoBehaviour {
 
@@ -33,14 +29,14 @@ public class BoardScript : MonoBehaviour {
     public GameObject whitefang;
 
     //public string url = "http://130.229.175.61:8000/game"; //use this if other computer is server 
-    public string url = "http://localhost:8000/game";
+    string url = "http://localhost:8000/game";
     private IEnumerator printMessage;
     int t = 0; //Begin the game, waiting for command 0
 
     void Start()
     {
-        //StartCoroutine(SendPosBoat(20f)); //when starting the game, wait 20 sec to position the boats on the board
-        //InvokeRepeating("callHelper",0.5f,0.5f); //many calls
+        StartCoroutine(SendPosBoat(20f)); //when starting the game, wait 20 sec to position the boats on the board
+        InvokeRepeating("callHelper",0.5f,0.5f); //many calls
         //InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
 
 
@@ -204,7 +200,6 @@ public class BoardScript : MonoBehaviour {
         GameObject opponentsSinkingBoat = Instantiate(sunkBoat, middlepoint, transform.rotation);
         opponentsSinkingBoat.transform.SetParent(GameObject.Find("BoardBoxcolliders (Opponent)").transform, false);
         opponentsSinkingBoat.transform.position = middlepoint;
-        //Quaternion qu = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
         opponentsSinkingBoat.transform.rotation = Quaternion.Euler(-0.855f, 87.152f, -3.852f);
         opponentsSinkingBoat.GetComponent<Animator>().enabled = true;
     }
@@ -220,7 +215,6 @@ public class BoardScript : MonoBehaviour {
             {
                 if (position == bombPos)
                 {
-                    //ändra så att det är gameobjekt boat som är key? 
                     GameObject.Find(boat).GetComponent<Animator>().enabled = true;
                 }
             }
@@ -267,22 +261,12 @@ public class BoardScript : MonoBehaviour {
 
         if (Input.GetKeyDown("space"))
        {
-            //Test code, works with space
-            /*Debug.Log("TEST BOMBING");
-            Vector3 place = GameObject.Find("oA1").transform.position;
-			Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, place, transform.rotation*Quaternion.Euler(90,0,0));
-			rocketClone.transform.parent = transform; //fäster raketen på board
-			rocketClone.transform.position += transform.up * 40f; //vrider raketen med huvet ner
-			rocketClone.velocity = -transform.up * 10f; //hastighet nedåt
-            StartCoroutine(markHit("A1"));*/
             GameObject.Find("blackperl").GetComponent<Animator>().enabled = true;
-
-            
-
         }
 
         if (Input.GetKeyDown("up"))
         {
+            GetComponent<AudioSource>().Play();
             List<string> list = new List<string>();
             list.Add("oA1");
             list.Add("oA2");
@@ -293,6 +277,7 @@ public class BoardScript : MonoBehaviour {
         }
         if (Input.GetKeyDown("down"))
         {
+            win();
             StartCoroutine(bombOpponentSunk("oA3", "speedyboat"));
         }
     }
@@ -334,9 +319,9 @@ public class BoardScript : MonoBehaviour {
         }
     }
 
-
     IEnumerator SendPosBoat(float time)
     {
+        GetComponent<AudioSource>().Play();
 		//Gets the position of each boat
         yield return new WaitForSeconds(time);
         string listToSend = "";
