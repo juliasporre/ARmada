@@ -126,6 +126,10 @@ public class BoardScript : MonoBehaviour {
             }
             StartCoroutine(bombOpponentSunk("o" + commands[2], commands[4]));
         }
+        else if (commands.Length > 3 && commands[3] == ".")
+        {
+            Debug.Log("Already attacked");
+        }
 
         //if turn is opponent
         else if (commands.Length > 3 && commands[1] != player && commands[3] == "x") //x = hit
