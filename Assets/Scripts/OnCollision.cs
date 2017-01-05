@@ -12,6 +12,7 @@ public class OnCollision : MonoBehaviour
         place.y += 1;
 
         Debug.Log ("missile collided with " + other.name);
+        Handheld.Vibrate();
         GameObject explosionBoat = Instantiate(explosion, place, other.transform.rotation);
         explosionBoat.GetComponent<Transform>().SetParent(other.transform);
         Destroy(this.gameObject);

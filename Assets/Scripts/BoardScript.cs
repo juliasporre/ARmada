@@ -28,14 +28,25 @@ public class BoardScript : MonoBehaviour {
     public GameObject tinyboat;
     public GameObject whitefang;
 
-    //public string url = "http://130.229.175.61:8000/game"; //use this if other computer is server 
-    string url = "http://localhost:8000/game";
+    string url = "http://192.168.1.7:8000/game"; //use this if other computer is server 
+    //string url = "http://localhost:8000/game";
     private IEnumerator printMessage;
     int t = 0; //Begin the game, waiting for command 0
 
+    public AudioSource countDown;
+    public AudioSource roger;
+    public AudioSource halleluja;
+    public AudioSource alarm;
+    public AudioSource cow;
+
+    public AudioSource hitSound;
+    public AudioSource missSound;
+
+
+
     void Start()
     {
-        StartCoroutine(SendPosBoat(20f)); //when starting the game, wait 20 sec to position the boats on the board
+        StartCoroutine(SendPosBoat(30f)); //when starting the game, wait 20 sec to position the boats on the board
         InvokeRepeating("callHelper",0.5f,0.5f); //many calls
         //InvokeRepeating("callHelper", 0.5f, 5f); //does not need to handle player, client does
 
@@ -133,6 +144,7 @@ public class BoardScript : MonoBehaviour {
 
     void bombOpponentHit(string bombPos)
     {
+        roger.Play();
         Debug.Log("Your attack hit!");
 		fireMissle(bombPos);
         StartCoroutine(markHit(bombPos));
@@ -140,6 +152,7 @@ public class BoardScript : MonoBehaviour {
 
     void bombOpponentMiss(string bombPos)
     {
+        roger.Play();
         Debug.Log("Your attack missed.");
 		fireMissle(bombPos);
         StartCoroutine(markMiss(bombPos));
@@ -149,6 +162,7 @@ public class BoardScript : MonoBehaviour {
     void bombMeHit(string bombPos)
     {
         Debug.Log("Your boat was hit!");
+        alarm.Play();
 		fireMissle(bombPos);
     }
 
@@ -160,6 +174,7 @@ public class BoardScript : MonoBehaviour {
 
     IEnumerator bombOpponentSunk(string bombPos, string boat)
     {
+        roger.Play();
         StartCoroutine(markHit(bombPos));
         fireMissle(bombPos);
         yield return new WaitForSeconds(6f);
@@ -207,6 +222,7 @@ public class BoardScript : MonoBehaviour {
     void bombMeSunk(string bombPos)
     {
         Debug.Log("Your boat was sunk.");
+        alarm.Play();
         fireMissle(bombPos);
         foreach (string boat in boatsPos.Keys)
         {
@@ -226,6 +242,7 @@ public class BoardScript : MonoBehaviour {
         yield return new WaitForSeconds(3.7f);
         GameObject success = Instantiate(ring, new Vector3(0, 0.4f, 0), new Quaternion(0, 0, 0, 0));
         success.transform.SetParent(GameObject.Find(bombPos).transform, false);
+        hitSound.Play();
     }
 
 	IEnumerator markMiss(string bombPos)
@@ -233,17 +250,20 @@ public class BoardScript : MonoBehaviour {
         yield return new WaitForSeconds(3.7f);
         GameObject success = Instantiate(kryss, new Vector3(0, 0.4f, 0), new Quaternion(0, 0, 0, 0));
         success.transform.SetParent(GameObject.Find(bombPos).transform, false);
+        missSound.Play();
     }
 		
 	void win()
 	{
         userDisplay.GetComponent<Text>().text = "CONGRATULATIONS, YOU WON THE GAME!";
         fireworks.SetActive(true);
+        halleluja.Play();
 	}
 
 	void loss()
 	{
         userDisplay.GetComponent<Text>().text = "YOU LOST THE GAME";
+        cow.Play();
     }
 
     void fireMissle(string boxName)
@@ -261,12 +281,13 @@ public class BoardScript : MonoBehaviour {
 
         if (Input.GetKeyDown("space"))
        {
+            countDown.Play();
             GameObject.Find("blackperl").GetComponent<Animator>().enabled = true;
         }
 
         if (Input.GetKeyDown("up"))
         {
-            GetComponent<AudioSource>().Play();
+            roger.Play();
             List<string> list = new List<string>();
             list.Add("oA1");
             list.Add("oA2");
@@ -321,19 +342,63 @@ public class BoardScript : MonoBehaviour {
 
     IEnumerator SendPosBoat(float time)
     {
-        GetComponent<AudioSource>().Play();
+        StartCoroutine(StartCountDown());
 		//Gets the position of each boat
         yield return new WaitForSeconds(time);
+        //GetComponent<AudioSource>().Play();
+        
+
         string listToSend = "";
 
         foreach (string boat in boatsPos.Keys)
         {
+            GameObject fixedboat = GameObject.Find(boat);
             listToSend += boat + "_";
             List<string> posList = boatsPos[boat];
+            string positions = "";
+
             foreach (string position in posList)
             {
                 listToSend +=  position;
+                positions += position;
             }
+
+            posList.Sort();
+            Debug.Log(positions);
+            bool horizontal = System.Text.RegularExpressions.Regex.IsMatch(positions, "^(((A\\d)+)|((B\\d)+)|((C\\d)+)|((D\\d)+)|((E\\d)+))$");
+            Debug.Log("horizontal:" + horizontal);
+
+            if (posList.Count % 2 == 1)
+            {
+                fixedboat.transform.SetParent(GameObject.Find(posList[posList.Count / 2]).transform, false);
+                fixedboat.transform.position = GameObject.Find(posList[posList.Count / 2]).transform.position;
+                fixedboat.transform.rotation = Quaternion.Euler(0, 0, 0);
+            }
+            else if (posList.Count % 2 == 0)
+            {
+                fixedboat.transform.SetParent(GameObject.Find(posList[posList.Count / 2]).transform, false);
+                fixedboat.transform.position = GameObject.Find(posList[posList.Count / 2]).transform.position;
+                fixedboat.transform.rotation = Quaternion.Euler(0, 0, 0);
+            }
+            if (horizontal)
+            {
+                fixedboat.transform.rotation = Quaternion.Euler(0, 90, 0);
+                if(posList.Count % 2 == 0)
+                {
+                    fixedboat.transform.position += new Vector3(0,0,1); 
+                }
+            }
+            else
+            {
+                if (posList.Count % 2 == 0)
+                {
+                    fixedboat.transform.position += new Vector3(1, 0, 0);
+                }
+            }
+            fixedboat.transform.localScale = new Vector3(0.0015f, 0.0015f, 0.0015f);
+            fixedboat.transform.position += new Vector3(0, 1f, 0);
+
+
 
             listToSend += "_";
         }
@@ -351,8 +416,15 @@ public class BoardScript : MonoBehaviour {
         var allColliders = GetComponentsInChildren<Collider>();
         foreach (var childCollider in allColliders)
         {
-            Destroy(childCollider);
+            childCollider.isTrigger = true;
         }
+    }
+
+    IEnumerator StartCountDown()
+    {
+        yield return new WaitForSeconds(18);
+        countDown.Play();
+
     }
 }
 

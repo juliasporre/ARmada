@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
   <Tracking>
+    <ImageTarget name="fid-0010" size="10.000000 10.000000" />
+    <ImageTarget name="fid-0009" size="10.000000 10.000000" />
+    <ImageTarget name="fid-0007" size="10.000000 10.000000" />
+    <ImageTarget name="fid-0008" size="10.000000 10.000000" />
+    <ImageTarget name="fid-0006" size="10.000000 10.000000" />
+    <ImageTarget name="fid-0005" size="10.000000 10.000000" />
     <ImageTarget name="fid-0001" size="10.000000 10.000000" />
     <ImageTarget name="boat1" size="10.000000 3.507692" />
     <ImageTarget name="first_16_pokedex_3d_grid_by_lewigi2012-d3ibcjt" size="10.000000 10.000000" />
